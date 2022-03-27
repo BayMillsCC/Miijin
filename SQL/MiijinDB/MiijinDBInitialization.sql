@@ -14,12 +14,12 @@ GO
 
 IF NOT EXISTS ( SELECT  *
                 FROM    sys.schemas
-                WHERE   name = N'MiijinDB' )
-    EXEC('CREATE SCHEMA [MiijinDB]');
+                WHERE   name = N'MiijinProd' )
+    EXEC('CREATE SCHEMA [MiijinProd]');
 GO
 
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='employeeLunchRecords' and xtype='U')
-    CREATE TABLE [MiijinDB].[employeeLunchRecords]
+    CREATE TABLE [MiijinProd].[employeeLunchRecords]
     (
         [employeeLunchID] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
         [employeeID] INT NOT NULL,
@@ -28,7 +28,7 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='employeeLunchRecords' and xt
 GO
 
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='studentLunchRecords' and xtype='U')
-    CREATE TABLE [MiijinDB].[studentLunchRecords]
+    CREATE TABLE [MiijinProd].[studentLunchRecords]
     (
         [studentLunchID] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
         [studentID] INT NOT NULL,
@@ -36,5 +36,5 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='studentLunchRecords' and xty
     )
 GO
 
-INSERT INTO [MiijinDB].[employeeLunchRecords] (employeeID, timeIDScanned) VALUES (1, CURRENT_TIMESTAMP)
-INSERT INTO [MiijinDB].[studentLunchRecords] (studentID, timeIDScanned) VALUES (1, CURRENT_TIMESTAMP)
+INSERT INTO [MiijinProd].[employeeLunchRecords] (employeeID, timeIDScanned) VALUES (1, CURRENT_TIMESTAMP)
+INSERT INTO [MiijinProd].[studentLunchRecords] (studentID, timeIDScanned) VALUES (1, CURRENT_TIMESTAMP)
