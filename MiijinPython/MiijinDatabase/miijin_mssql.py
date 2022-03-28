@@ -23,6 +23,25 @@ class MiijinDatabase:
 
         return self.cursor.fetchall()
 
+    def get_lunches(self, date_start, date_end, dbtype):
+        date_start = date_start + ' 00:00:00'
+        date_end = date_end + ' 23:59:59'
+
+        if dbtype == 'stud':
+            self.cursor.execute('''SELECT students.[studentLunchID], students.[studentID],
+                                    students.[timeIDScanned] FROM [MiijinDB].MiijinProd.studentLunchRecords students
+                                    WHERE students.timeIDScanned BETWEEN
+                                    ? AND
+                                    ?''', date_start, date_end)
+        else:
+            self.cursor.execute('''SELECT employees.[employeeLunchID], employees.[employeeID],
+                                    employees.[timeIDScanned] FROM [MiijinDB].MiijinProd.employeeLunchRecords employees
+                                    WHERE employees.timeIDScanned BETWEEN
+                                    ? AND
+                                    ?''', date_start, date_end)
+
+        return self.cursor.fetchall()
+
     def perform_insert(self, userid):
         if len(str(userid)) == 7:
             self.cursor.execute('''insert into MiijinDB.MiijinProd.studentLunchRecords(studentID, timeIDScanned)

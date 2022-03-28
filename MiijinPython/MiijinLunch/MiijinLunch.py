@@ -1,10 +1,9 @@
-from . import miijin_mssql
-from . import mssql_config
+from MiijinPython.MiijinDatabase import miijin_mssql, mssql_config
 import tkinter
 import tkinter.messagebox
 
 
-class MiijinPyGUI:
+class MiijinLunchGUI:
     def __init__(self):
         self.driver = mssql_config.driver
         self.server = mssql_config.server
@@ -18,7 +17,7 @@ class MiijinPyGUI:
 
         # Make the main window
         self.main_window = tkinter.Tk()
-        self.main_window.title("MiijinPy")
+        self.main_window.title("MiijinLunch")
 
         # Create a frame for our label and entry widgets
         self.top_frame = tkinter.Frame(self.main_window)
@@ -72,4 +71,7 @@ class MiijinPyGUI:
 
 
 def main():
-    MiijinPyGUI()
+    MiijinLunchGUI()
+
+
+main()
