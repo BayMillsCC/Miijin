@@ -28,17 +28,21 @@ class MiijinDatabase:
         date_end = date_end + ' 23:59:59'
 
         if dbtype == 'stud':
-            self.cursor.execute('''SELECT students.[studentLunchID], students.[studentID],
-                                    students.[timeIDScanned] FROM [MiijinDB].MiijinProd.studentLunchRecords students
+            self.cursor.execute('''SELECT students.[studentID], COUNT(*) AS "total_lunches"
+                                    FROM [MiijinDB].MiijinProd.studentLunchRecords students
                                     WHERE students.timeIDScanned BETWEEN
                                     ? AND
-                                    ?''', date_start, date_end)
+                                    ?
+                                    GROUP BY students.[studentID]
+                                    ORDER BY students.[studentID] ASC''', date_start, date_end)
         else:
-            self.cursor.execute('''SELECT employees.[employeeLunchID], employees.[employeeID],
-                                    employees.[timeIDScanned] FROM [MiijinDB].MiijinProd.employeeLunchRecords employees
+            self.cursor.execute('''SELECT employees.[employeeID], COUNT(*) AS "total_lunches" 
+                                    FROM [MiijinDB].MiijinProd.employeeLunchRecords employees
                                     WHERE employees.timeIDScanned BETWEEN
                                     ? AND
-                                    ?''', date_start, date_end)
+                                    ?
+                                    GROUP BY employees.[employeeID]
+                                    ORDER BY employees.[employeeID] ASC''', date_start, date_end)
 
         return self.cursor.fetchall()
 
