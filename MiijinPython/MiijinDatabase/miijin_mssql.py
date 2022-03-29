@@ -18,6 +18,7 @@ class MiijinDatabase:
         self.cursor = conn.cursor()
 
     def select_query(self):
+        # Remove this function later
         self.cursor.execute('''SELECT employees.[employeeLunchID], employees.[employeeID], employees.[timeIDScanned] 
                     FROM MiijinDB.MiijinProd.employeeLunchRecords employees''')
 
@@ -45,6 +46,52 @@ class MiijinDatabase:
                                     ORDER BY employees.[employeeID] ASC''', date_start, date_end)
 
         return self.cursor.fetchall()
+
+    def get_unique_users(self, date_start, date_end, dbtype):
+        date_start = date_start + ' 00:00:00'
+        date_end = date_end + ' 23:59:59'
+
+        if dbtype == 'stud':
+            self.cursor.execute('''SELECT COUNT(DISTINCT students.[studentID]) 
+                                    FROM [MiijinDB].MiijinProd.studentLunchRecords students
+                                    WHERE students.timeIDScanned BETWEEN
+                                    ? AND
+                                    ?''', date_start, date_end)
+        else:
+            self.cursor.execute('''SELECT COUNT(DISTINCT employees.[employeeID]) 
+                                    FROM [MiijinDB].MiijinProd.employeeLunchRecords employees
+                                    WHERE employees.timeIDScanned BETWEEN
+                                    ? AND
+                                    ?''', date_start, date_end)
+
+        result = self.cursor.fetchall()
+        row = result[0]
+        user_count, = row
+
+        return user_count
+
+    def get_duplicate_users(self, date_start, date_end, dbtype):
+        date_start = date_start + ' 00:00:00'
+        date_end = date_end + ' 23:59:59'
+
+        if dbtype == 'stud':
+            self.cursor.execute('''SELECT COUNT(students.[studentID]) 
+                                    FROM [MiijinDB].MiijinProd.studentLunchRecords students
+                                    WHERE students.timeIDScanned BETWEEN
+                                    ? AND
+                                    ?''', date_start, date_end)
+        else:
+            self.cursor.execute('''SELECT COUNT(employees.[employeeID]) 
+                                    FROM [MiijinDB].MiijinProd.employeeLunchRecords employees
+                                    WHERE employees.timeIDScanned BETWEEN
+                                    ? AND
+                                    ?''', date_start, date_end)
+
+        result = self.cursor.fetchall()
+        row = result[0]
+        duplicate_user_count, = row
+
+        return duplicate_user_count
 
     def perform_insert(self, userid):
         if len(str(userid)) == 7:
