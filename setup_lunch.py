@@ -52,6 +52,7 @@ msi_data = {
 
 bdist_msi_options = {
     "add_to_path": True,
+    "upgrade_code": '{9724B7AA-9800-33A2-8DF4-A1164248B8EE}',
     "data": msi_data
 }
 

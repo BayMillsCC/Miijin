@@ -17,7 +17,7 @@ class MiijinLunchGUI:
 
         # Make the main window
         self.main_window = tkinter.Tk()
-        self.main_window.title("MiijinLunch")
+        self.main_window.title("Miijin Lunch")
 
         # Create a frame for our label and entry widgets
         self.top_frame = tkinter.Frame(self.main_window)

@@ -52,9 +52,9 @@ msi_data = {
 
 bdist_msi_options = {
     "add_to_path": True,
+    "upgrade_code": '{C64E295A-C61B-30C9-9D17-A97ACD6C3218}',
     "data": msi_data
 }
-
 
 setup(
         name="Miijin Report",

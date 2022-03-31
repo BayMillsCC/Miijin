@@ -10,7 +10,7 @@ class MiijinReportGUI:
     def __init__(self):
         # Initiate our TK Root Window and set a title
         self.root = tk.Tk()
-        self.root.title("MiijinReport")
+        self.root.title("Miijin Report")
 
         # Initiate internal variables
         self.date_start = ''
@@ -46,11 +46,11 @@ class MiijinReportGUI:
 
         self.start_date_label = tk.Label(self.root, text='Start Date (YYYY-MM-DD):', font=('calibre', 16, 'bold'))
         self.start_date_entry = DateEntry(self.root, selectmode='day', textvariable=self.start_date_label,
-                                          background="magenta3", foreground="white", date_pattern='y/m/d')
+                                          background="dark green", foreground="white", date_pattern='y/m/d')
 
         self.end_date_label = tk.Label(self.root, text='End Date (YYYY-MM-DD): ', font=('calibre', 16, 'bold'))
         self.end_date_entry = DateEntry(self.root, selectmode='day', textvariable=self.end_date_label,
-                                        background="magenta3", foreground="white", date_pattern='y/m/d')
+                                        background="dark green", foreground="white", date_pattern='y/m/d')
 
         self.header_label = tk.Label(self.root, text='Header: ', font=('calibre', 16, 'bold'))
         self.header_entry = tk.Entry(self.root, textvariable=self.header_name_tk, font=('calibre', 12, 'normal'))
