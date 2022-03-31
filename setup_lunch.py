@@ -15,7 +15,7 @@ shortcut_table = [
      "DesktopFolder",          # Directory_
      "Miijin Lunch",           # Name
      "TARGETDIR",              # Component_
-     "[TARGETDIR]MiijinReport.exe",  # Target
+     "[TARGETDIR]MiijinLunch.exe",  # Target
      None,                     # Arguments
      None,                     # Description
      None,                     # Hotkey
