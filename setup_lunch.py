@@ -58,7 +58,7 @@ bdist_msi_options = {
 
 setup(
         name="Miijin Lunch",
-        version="0.1",
+        version="0.2",
         author='Tyler Postma',
         author_email='tpostma@bmcc.edu',
         url='https://github.com/BayMillsCC/Miijin',
