@@ -6,7 +6,7 @@ if sys.platform == "win32":
     base = "Win32GUI"
 
 setup(
-        name="MiijinLunch",
+        name="Miijin Lunch",
         version="0.1",
         description="Scans IDs into SQL database",
         icon='icons/MiijinLunchWindows.ico',
