@@ -11,7 +11,8 @@ class MiijinReportGUI:
         # Initiate our TK Root Window and set a title
         self.root = tk.Tk()
         self.root.title("Miijin Report")
-        self.audit_individual_employee = None
+        self.review_individual_user = None
+
         self.audit_id_tk = None
         self.audit_id_entry = None
         self.audit_id_label = None
@@ -28,6 +29,21 @@ class MiijinReportGUI:
         self.audit_quit_button = None
         self.audit_export_file_name = ''
         self.audit_export_file_name_tk = None
+
+        self.audit_days = None
+        self.audit_days_start_date_label = None
+        self.audit_days_start_date_entry = None
+        self.audit_days_end_date_label = None
+        self.audit_days_end_date_entry = None
+        self.audit_days_export_file_name_label = None
+        self.audit_days_export_file_name_entry = None
+        self.audit_days_output_message_tk = None
+        self.audit_days_output_message_label = None
+        self.audit_days_output_message_value = None
+        self.audit_days_generate_excel_file_button = None
+        self.audit_days_quit_button = None
+        self.audit_days_export_file_name = ''
+        self.audit_days_export_file_name_tk = None
 
         # Initiate internal variables
         self.date_start = ''
@@ -85,9 +101,15 @@ class MiijinReportGUI:
         self.output_message_value = tk.Label(self.root, textvariable=self.output_message_tk,
                                              font=('calibre', 12, 'normal'))
 
-        self.generate_file_button = tk.Button(self.root, text='Generate File', command=self.generate_excel_file_button)
-        self.audit_individual_employee_button = tk.Button(self.root, text='Review Employee',
-                                                          command=self.get_specific_employee_gui)
+        self.generate_file_button = tk.Button(self.root, text='Generate Bi-Weekly File',
+                                              command=self.generate_excel_file_button)
+
+        self.audit_days_button = tk.Button(self.root, text='Review Day Logs',
+                                           command=self.get_days_gui)
+
+        self.audit_individual_user_button = tk.Button(self.root, text='Review Individual User',
+                                                      command=self.get_specific_employee_gui)
+
         self.quit_button = tk.Button(self.root, text='Quit', command=self.root.destroy)
 
         # Place our various GUI elements in a grid configuration
@@ -103,12 +125,155 @@ class MiijinReportGUI:
         self.export_file_name_entry.grid(row=4, column=1)
         self.output_message_label.grid(row=5, column=0)
         self.output_message_value.grid(row=5, column=1)
-        self.generate_file_button.grid(row=6, column=0)
-        self.audit_individual_employee_button.grid(row=6, column=1)
-        self.quit_button.grid(row=6, column=2)
+        self.audit_days_button.grid(row=6, column=0)
+        self.generate_file_button.grid(row=6, column=1)
+        self.audit_individual_user_button.grid(row=7, column=0)
+        self.quit_button.grid(row=7, column=1)
 
         # Start our main loop to keep the GUI running
         self.root.mainloop()
+
+    def get_days_gui(self):
+        self.audit_days = tk.Toplevel(self.root)
+        self.audit_days.title("Review Daily Lunches")
+        self.audit_days.focus()
+
+        self.audit_days_output_message_tk = tk.StringVar()
+        self.audit_days_export_file_name_tk = tk.StringVar()
+
+        self.audit_days_start_date_label = tk.Label(self.audit_days,
+                                                    text='Start Date (YYYY-MM-DD):', font=('calibre', 16, 'bold'))
+
+        self.audit_days_start_date_entry = DateEntry(self.audit_days, selectmode='day',
+                                                     textvariable=self.start_date_label,
+                                                     background="dark green", foreground="white", date_pattern='y/m/d')
+
+        self.audit_days_end_date_label = tk.Label(self.audit_days, text='End Date (YYYY-MM-DD): ',
+                                                  font=('calibre', 16, 'bold'))
+
+        self.audit_days_end_date_entry = DateEntry(self.audit_days, selectmode='day', textvariable=self.end_date_label,
+                                                   background="dark green", foreground="white", date_pattern='y/m/d')
+
+        self.audit_days_export_file_name_label = tk.Label(self.audit_days, text='Export File Name: ',
+                                                          font=('calibre', 16, 'bold'))
+        self.audit_days_export_file_name_entry = tk.Entry(self.audit_days,
+                                                          textvariable=self.audit_days_export_file_name_tk,
+                                                          font=('calibre', 12, 'normal'))
+
+        self.audit_days_output_message_label = tk.Label(self.audit_days, text='Output Message: ',
+                                                        font=('calibre', 16, 'bold'))
+        self.audit_days_output_message_value = tk.Label(self.audit_days, textvariable=self.audit_days_output_message_tk,
+                                                        font=('calibre', 12, 'normal'))
+
+        self.audit_days_generate_excel_file_button = tk.Button(self.audit_days, text='Generate File',
+                                                               command=self.generate_audit_days_excel_file_button)
+        self.audit_days_quit_button = tk.Button(self.audit_days, text='Close',
+                                                command=self.audit_days.destroy)
+
+        # Place our various GUI elements in a grid configuration
+        self.audit_days_start_date_label.grid(row=0, column=0)
+        self.audit_days_start_date_entry.grid(row=0, column=1)
+        self.audit_days_end_date_label.grid(row=1, column=0)
+        self.audit_days_end_date_entry.grid(row=1, column=1)
+        self.audit_days_export_file_name_label.grid(row=2, column=0)
+        self.audit_days_export_file_name_entry.grid(row=2, column=1)
+        self.audit_days_output_message_label.grid(row=3, column=0)
+        self.audit_days_output_message_value.grid(row=3, column=1)
+        self.audit_days_generate_excel_file_button.grid(row=4, column=0)
+        self.audit_days_quit_button.grid(row=4, column=1)
+
+    def get_specific_employee_gui(self):
+        self.review_individual_user = tk.Toplevel(self.root)
+        self.review_individual_user.title("Review Individual User")
+        self.review_individual_user.focus()
+
+        self.audit_id_tk = tk.StringVar()
+        self.audit_output_message_tk = tk.StringVar()
+        self.audit_export_file_name_tk = tk.StringVar()
+
+        self.audit_id_label = tk.Label(self.review_individual_user, text='ID Number to Audit: ',
+                                       font=('calibre', 16, 'bold'))
+        self.audit_id_entry = tk.Entry(self.review_individual_user, textvariable=self.audit_id_tk,
+                                       font=('calibre', 12, 'normal'))
+
+        self.audit_start_date_label = tk.Label(self.review_individual_user,
+                                               text='Start Date (YYYY-MM-DD):', font=('calibre', 16, 'bold'))
+        self.audit_start_date_entry = DateEntry(self.review_individual_user, selectmode='day',
+                                                textvariable=self.start_date_label,
+                                                background="dark green", foreground="white", date_pattern='y/m/d')
+
+        self.audit_end_date_label = tk.Label(self.review_individual_user,
+                                             text='End Date (YYYY-MM-DD): ', font=('calibre', 16, 'bold'))
+        self.audit_end_date_entry = DateEntry(self.review_individual_user, selectmode='day',
+                                              textvariable=self.end_date_label,
+                                              background="dark green", foreground="white", date_pattern='y/m/d')
+
+        self.audit_export_file_name_label = tk.Label(self.review_individual_user,
+                                                     text='Export File Name: ', font=('calibre', 16, 'bold'))
+        self.audit_export_file_name_entry = tk.Entry(self.review_individual_user,
+                                                     textvariable=self.audit_export_file_name_tk,
+                                                     font=('calibre', 12, 'normal'))
+
+        self.audit_output_message_label = tk.Label(self.review_individual_user, text='Output Message: ',
+                                                   font=('calibre', 16, 'bold'))
+        self.audit_output_message_value = tk.Label(self.review_individual_user,
+                                                   textvariable=self.audit_output_message_tk,
+                                                   font=('calibre', 12, 'normal'))
+
+        self.audit_generate_excel_file_button = tk.Button(self.review_individual_user, text='Generate File',
+                                                          command=self.generate_audit_excel_file_button)
+        self.audit_quit_button = tk.Button(self.review_individual_user, text='Close',
+                                           command=self.review_individual_user.destroy)
+
+        # Place our various GUI elements in a grid configuration
+        self.audit_id_label.grid(row=0, column=0)
+        self.audit_id_entry.grid(row=0, column=1)
+        self.audit_start_date_label.grid(row=1, column=0)
+        self.audit_start_date_entry.grid(row=1, column=1)
+        self.audit_end_date_label.grid(row=2, column=0)
+        self.audit_end_date_entry.grid(row=2, column=1)
+        self.audit_export_file_name_label.grid(row=3, column=0)
+        self.audit_export_file_name_entry.grid(row=3, column=1)
+        self.audit_output_message_label.grid(row=4, column=0)
+        self.audit_output_message_value.grid(row=4, column=1)
+        self.audit_generate_excel_file_button.grid(row=5, column=0)
+        self.audit_quit_button.grid(row=5, column=1)
+
+    def generate_audit_days_excel_file_button(self):
+        # Takes in data from our audit GUI and preps our function
+        self.audit_days_output_message_tk.set("")
+        date_start = str(self.audit_days_start_date_entry.get_date())
+        date_end = str(self.audit_days_end_date_entry.get_date())
+        self.audit_days_export_file_name = str(self.audit_days_export_file_name_tk.get())
+        self.audit_days_export_file_name_tk.set("")
+
+        # Call our lunch counts function and our Excel generator function
+        daily_lunch_records_list = self.get_daily_lunch_records(date_start, date_end)
+
+        result = self.generate_audit_excel_file(self.audit_days_export_file_name, daily_lunch_records_list)
+        # I can reuse the above Excel function as we're just not filtering by an individual ID anymore
+
+        # Report back any output messages
+        self.audit_days_output_message_tk.set(result)
+        self.audit_days_quit_button.focus_set()
+
+    def generate_audit_excel_file_button(self):
+        # Takes in data from our audit GUI and preps our function
+        self.audit_output_message_tk.set("")
+        audit_id_number = str(self.audit_id_entry.get())
+        date_start = str(self.start_date_entry.get_date())
+        date_end = str(self.end_date_entry.get_date())
+        self.audit_export_file_name = str(self.audit_export_file_name_tk.get())
+        self.audit_export_file_name_tk.set("")
+
+        # Call our lunch counts function and our Excel generator function
+        individual_lunch_records_list = self.get_individual_lunch_counts(audit_id_number, date_start, date_end)
+
+        result = self.generate_audit_excel_file(self.audit_export_file_name, individual_lunch_records_list)
+
+        # Report back any output messages
+        self.audit_output_message_tk.set(result)
+        self.audit_quit_button.focus_set()
 
     def generate_excel_file_button(self):
         # This function sets variables and calls the functions necessary to populate other data
@@ -129,79 +294,25 @@ class MiijinReportGUI:
         # Report back any output messages
         self.output_message_tk.set(result)
 
-    def get_specific_employee_gui(self):
-        self.audit_individual_employee = tk.Toplevel(self.root)
-        self.audit_individual_employee.title("Audit Individual Account")
+    def get_daily_lunch_records(self, start_date, end_date):
+        output_user_list = []
 
-        self.audit_id_tk = tk.StringVar()
-        self.audit_output_message_tk = tk.StringVar()
-        self.audit_export_file_name_tk = tk.StringVar()
+        employee_lunches_rows = self.miijin_db.get_daily_lunches(start_date, end_date, "emp")
+        student_lunches_rows = self.miijin_db.get_daily_lunches(start_date, end_date, "stud")
 
-        self.audit_id_label = tk.Label(self.audit_individual_employee, text='ID Number to Audit: ',
-                                       font=('calibre', 16, 'bold'))
-        self.audit_id_entry = tk.Entry(self.audit_individual_employee, textvariable=self.audit_id_tk,
-                                       font=('calibre', 12, 'normal'))
+        user_lunches_rows = employee_lunches_rows + student_lunches_rows
 
-        self.audit_start_date_label = tk.Label(self.audit_individual_employee,
-                                               text='Start Date (YYYY-MM-DD):', font=('calibre', 16, 'bold'))
-        self.audit_start_date_entry = DateEntry(self.audit_individual_employee, selectmode='day',
-                                                textvariable=self.start_date_label,
-                                                background="dark green", foreground="white", date_pattern='y/m/d')
+        for lunch_row in user_lunches_rows:
+            temp_user_list = [lunch_row[0], lunch_row[1]]
+            output_user_list.append(temp_user_list)
 
-        self.audit_end_date_label = tk.Label(self.audit_individual_employee,
-                                             text='End Date (YYYY-MM-DD): ', font=('calibre', 16, 'bold'))
-        self.audit_end_date_entry = DateEntry(self.audit_individual_employee, selectmode='day',
-                                              textvariable=self.end_date_label,
-                                              background="dark green", foreground="white", date_pattern='y/m/d')
+        def sort(sub_list):
+            sub_list.sort(key=lambda x: x[1])  # Okay this is a neat use of lambdas
+            return sub_list
 
-        self.audit_export_file_name_label = tk.Label(self.audit_individual_employee,
-                                                     text='Export File Name: ', font=('calibre', 16, 'bold'))
-        self.audit_export_file_name_entry = tk.Entry(self.audit_individual_employee,
-                                                     textvariable=self.audit_export_file_name_tk,
-                                                     font=('calibre', 12, 'normal'))
+        sort(output_user_list)
 
-        self.audit_output_message_label = tk.Label(self.audit_individual_employee, text='Output Message: ',
-                                                   font=('calibre', 16, 'bold'))
-        self.audit_output_message_value = tk.Label(self.audit_individual_employee,
-                                                   textvariable=self.audit_output_message_tk,
-                                                   font=('calibre', 12, 'normal'))
-
-        self.audit_generate_excel_file_button = tk.Button(self.audit_individual_employee, text='Generate File',
-                                                          command=self.generate_audit_excel_file_button)
-        self.audit_quit_button = tk.Button(self.audit_individual_employee, text='Quit',
-                                           command=self.audit_individual_employee.destroy)
-
-        # Place our various GUI elements in a grid configuration
-        self.audit_id_label.grid(row=0, column=0)
-        self.audit_id_entry.grid(row=0, column=1)
-        self.audit_start_date_label.grid(row=1, column=0)
-        self.audit_start_date_entry.grid(row=1, column=1)
-        self.audit_end_date_label.grid(row=2, column=0)
-        self.audit_end_date_entry.grid(row=2, column=1)
-        self.audit_export_file_name_label.grid(row=3, column=0)
-        self.audit_export_file_name_entry.grid(row=3, column=1)
-        self.audit_output_message_label.grid(row=4, column=0)
-        self.audit_output_message_value.grid(row=4, column=1)
-        self.audit_generate_excel_file_button.grid(row=5, column=0)
-        self.audit_quit_button.grid(row=5, column=1)
-
-    def generate_audit_excel_file_button(self):
-        # Takes in data from our audit GUI and preps our function
-        self.audit_output_message_tk.set("")
-        audit_id_number = str(self.audit_id_entry.get())
-        date_start = str(self.start_date_entry.get_date())
-        date_end = str(self.end_date_entry.get_date())
-        self.audit_export_file_name = str(self.audit_export_file_name_tk.get())
-        self.audit_export_file_name_tk.set("")
-
-        # Call our lunch counts function and our Excel generator function
-        individual_lunch_records_list = self.get_individual_lunch_counts(audit_id_number, date_start, date_end)
-
-        result = self.generate_audit_excel_file(self.audit_export_file_name, individual_lunch_records_list)
-
-        # Report back any output messages
-        self.audit_output_message_tk.set(result)
-        self.audit_quit_button.focus_set()
+        return output_user_list
 
     def get_individual_lunch_counts(self, id_number, start_date, end_date):
         output_user_list = []
@@ -283,7 +394,7 @@ class MiijinReportGUI:
         workbook.close()
 
         # I haven't added proper error checking, but ideally the below message is what is returned to the user's GUI
-        output_message = "Audit File generated successfully"
+        output_message = "Excel file generated successfully in Downloads"
         return output_message
 
     def generate_excel_file(self, filename):
