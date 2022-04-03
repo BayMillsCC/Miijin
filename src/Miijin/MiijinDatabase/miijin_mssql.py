@@ -17,6 +17,29 @@ class MiijinDatabase:
 
         self.cursor = conn.cursor()
 
+    def get_individual_lunches(self, id_number, start_date, end_date, dbtype):
+        date_start = start_date + ' 00:00:00'
+        date_end = end_date + ' 23:59:59'
+
+        if dbtype == 'stud':
+            self.cursor.execute('''SELECT students.[studentID], students.[timeIDScanned] AS "total_lunches"
+                                            FROM [MiijinDB].MiijinProd.studentLunchRecords students
+                                            WHERE students.[studentID] = ? AND students.timeIDScanned BETWEEN
+                                            ? AND
+                                            ?
+                                            ORDER BY students.[timeIDScanned] ASC
+                                            ''', id_number, date_start, date_end)
+        else:
+            self.cursor.execute('''SELECT employees.[employeeID], employees.[timeIDScanned] AS "total_lunches" 
+                                            FROM [MiijinDB].MiijinProd.employeeLunchRecords employees
+                                            WHERE employees.[employeeID] = ? AND employees.timeIDScanned BETWEEN
+                                            ? AND
+                                            ?
+                                            ORDER BY employees.[timeIDScanned] ASC
+                                            ''', id_number, date_start, date_end)
+
+        return self.cursor.fetchall()
+
     def get_lunches(self, date_start, date_end, dbtype):
         date_start = date_start + ' 00:00:00'
         date_end = date_end + ' 23:59:59'

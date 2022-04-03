@@ -11,6 +11,23 @@ class MiijinReportGUI:
         # Initiate our TK Root Window and set a title
         self.root = tk.Tk()
         self.root.title("Miijin Report")
+        self.audit_individual_employee = None
+        self.audit_id_tk = None
+        self.audit_id_entry = None
+        self.audit_id_label = None
+        self.audit_start_date_label = None
+        self.audit_start_date_entry = None
+        self.audit_end_date_label = None
+        self.audit_end_date_entry = None
+        self.audit_export_file_name_label = None
+        self.audit_export_file_name_entry = None
+        self.audit_output_message_tk = None
+        self.audit_output_message_label = None
+        self.audit_output_message_value = None
+        self.audit_generate_excel_file_button = None
+        self.audit_quit_button = None
+        self.audit_export_file_name = ''
+        self.audit_export_file_name_tk = None
 
         # Initiate internal variables
         self.date_start = ''
@@ -33,6 +50,8 @@ class MiijinReportGUI:
         self.username = mssql_config.username
         self.password = mssql_config.password
         self.trusted = mssql_config.trust_server
+
+        self.current_date = time.strftime("%Y%m%d")
 
         # Initiate the connection to our database
         self.miijin_db = miijin_mssql.MiijinDatabase(self.driver, self.server, self.database,
@@ -67,6 +86,8 @@ class MiijinReportGUI:
                                              font=('calibre', 12, 'normal'))
 
         self.generate_file_button = tk.Button(self.root, text='Generate File', command=self.generate_excel_file_button)
+        self.audit_individual_employee_button = tk.Button(self.root, text='Review Employee',
+                                                          command=self.get_specific_employee_gui)
         self.quit_button = tk.Button(self.root, text='Quit', command=self.root.destroy)
 
         # Place our various GUI elements in a grid configuration
@@ -83,7 +104,8 @@ class MiijinReportGUI:
         self.output_message_label.grid(row=5, column=0)
         self.output_message_value.grid(row=5, column=1)
         self.generate_file_button.grid(row=6, column=0)
-        self.quit_button.grid(row=6, column=1)
+        self.audit_individual_employee_button.grid(row=6, column=1)
+        self.quit_button.grid(row=6, column=2)
 
         # Start our main loop to keep the GUI running
         self.root.mainloop()
@@ -106,6 +128,95 @@ class MiijinReportGUI:
 
         # Report back any output messages
         self.output_message_tk.set(result)
+
+    def get_specific_employee_gui(self):
+        self.audit_individual_employee = tk.Toplevel(self.root)
+        self.audit_individual_employee.title("Audit Individual Account")
+
+        self.audit_id_tk = tk.StringVar()
+        self.audit_output_message_tk = tk.StringVar()
+        self.audit_export_file_name_tk = tk.StringVar()
+
+        self.audit_id_label = tk.Label(self.audit_individual_employee, text='ID Number to Audit: ',
+                                       font=('calibre', 16, 'bold'))
+        self.audit_id_entry = tk.Entry(self.audit_individual_employee, textvariable=self.audit_id_tk,
+                                       font=('calibre', 12, 'normal'))
+
+        self.audit_start_date_label = tk.Label(self.audit_individual_employee,
+                                               text='Start Date (YYYY-MM-DD):', font=('calibre', 16, 'bold'))
+        self.audit_start_date_entry = DateEntry(self.audit_individual_employee, selectmode='day',
+                                                textvariable=self.start_date_label,
+                                                background="dark green", foreground="white", date_pattern='y/m/d')
+
+        self.audit_end_date_label = tk.Label(self.audit_individual_employee,
+                                             text='End Date (YYYY-MM-DD): ', font=('calibre', 16, 'bold'))
+        self.audit_end_date_entry = DateEntry(self.audit_individual_employee, selectmode='day',
+                                              textvariable=self.end_date_label,
+                                              background="dark green", foreground="white", date_pattern='y/m/d')
+
+        self.audit_export_file_name_label = tk.Label(self.audit_individual_employee,
+                                                     text='Export File Name: ', font=('calibre', 16, 'bold'))
+        self.audit_export_file_name_entry = tk.Entry(self.audit_individual_employee,
+                                                     textvariable=self.audit_export_file_name_tk,
+                                                     font=('calibre', 12, 'normal'))
+
+        self.audit_output_message_label = tk.Label(self.audit_individual_employee, text='Output Message: ',
+                                                   font=('calibre', 16, 'bold'))
+        self.audit_output_message_value = tk.Label(self.audit_individual_employee,
+                                                   textvariable=self.audit_output_message_tk,
+                                                   font=('calibre', 12, 'normal'))
+
+        self.audit_generate_excel_file_button = tk.Button(self.audit_individual_employee, text='Generate File',
+                                                          command=self.generate_audit_excel_file_button)
+        self.audit_quit_button = tk.Button(self.audit_individual_employee, text='Quit',
+                                           command=self.audit_individual_employee.destroy)
+
+        # Place our various GUI elements in a grid configuration
+        self.audit_id_label.grid(row=0, column=0)
+        self.audit_id_entry.grid(row=0, column=1)
+        self.audit_start_date_label.grid(row=1, column=0)
+        self.audit_start_date_entry.grid(row=1, column=1)
+        self.audit_end_date_label.grid(row=2, column=0)
+        self.audit_end_date_entry.grid(row=2, column=1)
+        self.audit_export_file_name_label.grid(row=3, column=0)
+        self.audit_export_file_name_entry.grid(row=3, column=1)
+        self.audit_output_message_label.grid(row=4, column=0)
+        self.audit_output_message_value.grid(row=4, column=1)
+        self.audit_generate_excel_file_button.grid(row=5, column=0)
+        self.audit_quit_button.grid(row=5, column=1)
+
+    def generate_audit_excel_file_button(self):
+        # Takes in data from our audit GUI and preps our function
+        self.audit_output_message_tk.set("")
+        audit_id_number = str(self.audit_id_entry.get())
+        date_start = str(self.start_date_entry.get_date())
+        date_end = str(self.end_date_entry.get_date())
+        self.audit_export_file_name = str(self.audit_export_file_name_tk.get())
+        self.audit_export_file_name_tk.set("")
+
+        # Call our lunch counts function and our Excel generator function
+        individual_lunch_records_list = self.get_individual_lunch_counts(audit_id_number, date_start, date_end)
+
+        result = self.generate_audit_excel_file(self.audit_export_file_name, individual_lunch_records_list)
+
+        # Report back any output messages
+        self.audit_output_message_tk.set(result)
+        self.audit_quit_button.focus_set()
+
+    def get_individual_lunch_counts(self, id_number, start_date, end_date):
+        output_user_list = []
+        if len(str(id_number)) == 7:
+            dbtype = 'stud'
+        else:
+            dbtype = 'emp'
+
+        user_lunches_rows = self.miijin_db.get_individual_lunches(id_number, start_date, end_date, dbtype)
+
+        for lunch_row in user_lunches_rows:
+            temp_user_list = [lunch_row[0], lunch_row[1]]
+            output_user_list.append(temp_user_list)
+
+        return output_user_list
 
     def get_lunch_counts(self):
         # This function is responsible for actually pulling data from the database for employees and students
@@ -130,14 +241,56 @@ class MiijinReportGUI:
             temp_stud_list = [student[0], student[1]]
             self.output_student_list.append(temp_stud_list)
 
+    def generate_audit_excel_file(self, filename, individual_lunch_records_list):
+        # No, you don't get a choice, it will go to your Downloads' folder because that's where downloads go
+        user_download_folder = os.path.join(os.path.expanduser('~'), 'Downloads')
+        excel_file_name = str(filename) + "-" + str(self.current_date) + '.xlsx'
+        excel_path = os.path.join(user_download_folder, excel_file_name)
+
+        # This will actually create the workbook and set up two separate worksheets to separate our data
+        workbook = xlsxwriter.Workbook(excel_path)
+        user_worksheet = workbook.add_worksheet("User Log")
+
+        # Set the currency format for some of our cells to make it appear easier on the eyes
+        currency_format = workbook.add_format({'bold': True, 'font_color': 'red', 'num_format': '$#,##0.00'})
+        date_format = workbook.add_format({'num_format': 'mm/dd/yyyy hh:mm'})
+
+        # Now we will start outputting data to our file starting with Employees
+        # Rows and columns are 0-indexed meaning the first top left cell is 0,0 according to this module
+        row = 0
+        col = 0
+
+        # Output top row (header) information and some basic calculations
+        user_worksheet.write(row, col, "User ID: ")
+        user_worksheet.write(row, col + 1, "Date and Time of Lunch: ")
+        user_worksheet.write(row + 1, col + 3, "Total Lunches: ")
+        user_worksheet.write(row + 2, col + 3, "Total Cost: ")
+
+        # Increment our row so that we don't accidentally overwrite data in the loop below
+        row += 1
+        total_lunches = 0
+        # Iterate over the data we generated in our get_lunch_counts function and write it out row by row.
+        for record in individual_lunch_records_list:
+            user_worksheet.write(row, col, record[0])
+            user_worksheet.write_datetime(row, col + 1, record[1], date_format)
+            total_lunches += 1
+            row += 1
+
+        user_worksheet.write(1, col + 4, total_lunches)  # Sum of lunches
+        user_worksheet.write(2, col + 4, (total_lunches * self.lunch_cost), currency_format)  # Cost
+
+        # We're done writing data, close the workbook
+        workbook.close()
+
+        # I haven't added proper error checking, but ideally the below message is what is returned to the user's GUI
+        output_message = "Audit File generated successfully"
+        return output_message
+
     def generate_excel_file(self, filename):
         # This function is what actually generates our Excel file and sets formatting options
-        # We also append the current date to the end of the file to keep it easier to differentiate
-        current_date = time.strftime("%Y%m%d")
-
-        # No, you don't get a choice, it will go to your Downloads folder because that's where downloads go
+        # No, you don't get a choice, it will go to your Downloads' folder because that's where downloads go
         user_download_folder = os.path.join(os.path.expanduser('~'), 'Downloads')
-        excel_file_name = str(filename) + "-" + str(current_date) + '.xlsx'
+        excel_file_name = str(filename) + "-" + str(self.current_date) + '.xlsx'
         excel_path = os.path.join(user_download_folder, excel_file_name)
 
         # This will actually create the workbook and set up two separate worksheets to separate our data
