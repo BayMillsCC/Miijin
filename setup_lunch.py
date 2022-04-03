@@ -58,8 +58,8 @@ bdist_msi_options = {
 
 setup(
         name="Miijin Lunch",
-        version="0.2",
-        author='Tyler Postma',
+        version="0.3",
+        author='Bay Mills Community College',
         author_email='tpostma@bmcc.edu',
         url='https://github.com/BayMillsCC/Miijin',
         description="Scans IDs into SQL database",
