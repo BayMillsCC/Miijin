@@ -51,7 +51,7 @@ class MiijinReportGUI:
         self.header_name = ''
         self.period_number = ''
         self.export_file_name = ''
-        self.lunch_cost = 5  # Lunches currently cost $5 for employees
+        self.lunch_cost = 6  # Lunches currently cost $5 for employees
         self.employee_sum_lunches = 0
         self.student_sum_lunches = 0
         self.total_employees_served = ''
