@@ -2,6 +2,7 @@ from src.Miijin.MiijinDatabase import miijin_postgres, postgres_config
 import tkinter as tk
 from tkcalendar import DateEntry
 import xlsxwriter
+from zoneinfo import ZoneInfo
 import time
 import os
 
@@ -381,7 +382,12 @@ class MiijinReportGUI:
         # Iterate over the data we generated in our get_lunch_counts function and write it out row by row.
         for record in individual_lunch_records_list:
             user_worksheet.write(row, col, record[0])
-            user_worksheet.write_datetime(row, col + 1, record[1], date_format)
+
+            dt = record[1]
+            if dt is not None and getattr(dt, "tzinfo", None) is not None:
+                dt = dt.astimezone(ZoneInfo("America/Detroit")).replace(tzinfo=None)
+
+            user_worksheet.write_datetime(row, col + 1, dt, date_format)
             total_lunches += 1
             row += 1
 
