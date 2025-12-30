@@ -1,4 +1,4 @@
-from src.Miijin.MiijinDatabase import miijin_mssql, mssql_config
+from src.Miijin.MiijinDatabase import miijin_postgres, postgres_config
 import tkinter as tk
 
 
@@ -9,16 +9,14 @@ class MiijinLunchGUI:
         self.root.title("Miijin Lunch")
 
         # Our database configuration being puled from mssql_config
-        self.driver = mssql_config.driver
-        self.server = mssql_config.server
-        self.database = mssql_config.database
-        self.username = mssql_config.username
-        self.password = mssql_config.password
-        self.trusted = mssql_config.trust_server
+        self.server = postgres_config.server
+        self.database = postgres_config.database
+        self.username = postgres_config.username
+        self.password = postgres_config.password
 
         # Initiate the connection to our database
-        self.miijin_db = miijin_mssql.MiijinDatabase(self.driver, self.server, self.database,
-                                                     self.username, self.password, self.trusted)
+        self.miijin_db = miijin_postgres.MiijinDatabase(self.server, self.database,
+                                                     self.username, self.password)
 
         self.user_id_tk = tk.StringVar()
         self.last_user_id_tk = tk.StringVar()
