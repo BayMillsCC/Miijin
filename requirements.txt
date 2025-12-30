@@ -1,0 +1,12 @@
+# Core runtime dependencies
+Babel
+XlsxWriter
+psycopg
+psycopg-binary
+pytz
+tkcalendar
+
+# Packaging / build
+cx_Freeze
+cx_Logging
+wheel
