@@ -15,6 +15,17 @@ Before running or building either application, you must configure the PostgreSQL
 Edit the following file:
 
 ```
+src/Miijin/MiijinDatabase/MiijinDBInitialization.sql
+```
+
+Update the password variable, and run that code on your Postgres server. Please note you may need to also allow remote connections and configure SSL for your database connections.
+
+
+
+
+Additionally, you will need to edit the following file:
+
+```
 src/Miijin/MiijinDatabase/postgres_config.py
 ```
 
