@@ -8,5 +8,4 @@ tkcalendar
 
 # Packaging / build
 cx_Freeze
-cx_Logging
 wheel
