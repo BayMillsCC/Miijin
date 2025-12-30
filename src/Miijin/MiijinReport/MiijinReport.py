@@ -1,7 +1,8 @@
-from src.Miijin.MiijinDatabase import miijin_mssql, mssql_config
+from src.Miijin.MiijinDatabase import miijin_postgres, postgres_config
 import tkinter as tk
 from tkcalendar import DateEntry
 import xlsxwriter
+from zoneinfo import ZoneInfo
 import time
 import os
 
@@ -59,19 +60,17 @@ class MiijinReportGUI:
         self.output_employee_list = []  # Used by xlsxwriter
         self.output_student_list = []  # Used by xlsxwriter
 
-        # Our database configuration being puled from mssql_config
-        self.driver = mssql_config.driver
-        self.server = mssql_config.server
-        self.database = mssql_config.database
-        self.username = mssql_config.username
-        self.password = mssql_config.password
-        self.trusted = mssql_config.trust_server
+        # Our database configuration being puled from postgres_config
+        self.server = postgres_config.server
+        self.database = postgres_config.database
+        self.username = postgres_config.username
+        self.password = postgres_config.password
 
         self.current_date = time.strftime("%Y%m%d")
 
         # Initiate the connection to our database
-        self.miijin_db = miijin_mssql.MiijinDatabase(self.driver, self.server, self.database,
-                                                     self.username, self.password, self.trusted)
+        self.miijin_db = miijin_postgres.MiijinDatabase(self.server, self.database,
+                                                     self.username, self.password)
 
         # Specific variables and elements used by the GUI side of the program
         self.header_name_tk = tk.StringVar()
@@ -383,7 +382,12 @@ class MiijinReportGUI:
         # Iterate over the data we generated in our get_lunch_counts function and write it out row by row.
         for record in individual_lunch_records_list:
             user_worksheet.write(row, col, record[0])
-            user_worksheet.write_datetime(row, col + 1, record[1], date_format)
+
+            dt = record[1]
+            if dt is not None and getattr(dt, "tzinfo", None) is not None:
+                dt = dt.astimezone(ZoneInfo("America/Detroit")).replace(tzinfo=None)
+
+            user_worksheet.write_datetime(row, col + 1, dt, date_format)
             total_lunches += 1
             row += 1
 
