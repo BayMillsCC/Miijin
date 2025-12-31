@@ -153,18 +153,17 @@ Download here:
 https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 ---
-### Raspberry PI OS (Debian Arm64)
-1. Install dependencies:
-   ```bash 
-      sudo apt install python3-dev gcc-aarch64-linux-gnu
-   ```
+### Linux
+To keep this short and maintain compatibility we will deploy AppImages
+1. Install dependencies, mainly python3 and python3-tkinter as well as the requirements.txt file
+
 2. Build MiijinLunch:
    ```bash 
-      python setup_lunch.py bdist_rpi
+      python setup_lunch.py bdist_appimage
    ```
 3. Build MiijinReport:
    ```bash 
-      python setup_report.py bdist_rpi
+      python setup_report.py bdist_appimage
    ```
    
 ### macOS

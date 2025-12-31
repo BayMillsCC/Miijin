@@ -26,11 +26,9 @@ options = {
         "iconfile": "icons/MiijinLunch.icns",
     },
 
-    # Debian (.deb) builder for Raspberry Pi OS / Debian (arm64).
-    "bdist_deb": {
-        # --- Tkinter ---
-        "depends": ["python3-tk"],
-        "maintainer": "Bay Mills Community College <tpostma@bmcc.edu>",
+    # Building distro-specific packages with python is poorly designed, we are doing AppImage instead....
+    "bdist_appimage": {
+        "target_name": "MiijinLunch",
     },
 }
 
