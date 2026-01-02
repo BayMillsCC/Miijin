@@ -20,62 +20,6 @@ src/Miijin/MiijinDatabase/MiijinDBInitialization.sql
 
 Update the password variable, and run that code on your Postgres server. Please note you may need to also allow remote connections and configure SSL for your database connections.
 
-
-
-
-Additionally, you will need to edit the following file:
-
-```
-src/Miijin/MiijinDatabase/postgres_config.py
-```
-
-And update the following variables:
-
-```python
-host = "localhost"
-database = "miijinprod"
-username = "miijin_app"
-password = "YOUR_PASSWORD"
-port = 5432
-sslmode = "require"
-```
-
----
-
-## Requirements
-
-### Python Version
-- **Python 3.14 or newer**
-
-### Python Dependencies
-
-All runtime dependencies are listed in `requirements.txt`.
-
-Install them with:
-
-```bash
-pip install -r requirements.txt
-```
-
-Contents of `requirements.txt`:
-
-```txt
-Babel
-XlsxWriter
-psycopg
-psycopg-binary
-pytz
-tkcalendar
-cx_Freeze
-cx_Logging
-wheel
-```
-
-### Notes
-- `tk` is included with Python on macOS and Windows
-- `pip`, `setuptools`, and Python itself are **not** listed in `requirements.txt`
-- `MiijinDatabase` is part of this repository, not a pip package but is still required
-
 ---
 
 ## Setup Instructions
@@ -94,7 +38,7 @@ cd Miijin
 #### macOS / Linux
 
 ```bash
-python3.14 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
@@ -112,22 +56,6 @@ python -m venv .venv
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
-```
-
----
-
-### Run the application (for testing, go to Build Instructions for an Executable)
-
-#### MiijinLunch
-
-```bash
-python src/Miijin/MiijinLunch/MiijinLunch.py
-```
-
-#### MiijinReport
-
-```bash
-python src/Miijin/MiijinReport/MiijinReport.py
 ```
 
 ---
@@ -154,14 +82,14 @@ https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 ---
 ### Linux
-To keep this short and maintain compatibility we will deploy AppImages
-1. Install dependencies, mainly python3 and python3-tkinter as well as the requirements.txt file
-
-2. Build MiijinLunch:
+To keep this short and maintain compatibility we will deploy AppImages. You may need to install a ```fuse``` package depending on what your distribution comes with.
+1. Configure `postgres_config.py` with your database settings
+2. Install dependencies, mainly python3 and python3-tkinter as well as the requirements.txt file
+3. Build MiijinLunch:
    ```bash 
       python setup_lunch.py bdist_appimage
    ```
-3. Build MiijinReport:
+4. Build MiijinReport:
    ```bash 
       python setup_report.py bdist_appimage
    ```
@@ -229,4 +157,3 @@ If Windows Defender or SmartScreen blocks the MSI, you can sign it using a self-
 - PostgreSQL stores timestamps in UTC internally
 - Reports are converted to **America/Detroit** time when exported to Excel
 - Advanced Analytics can be generated with PowerBI or another BI tool
-- Excel does not support timezone-aware timestamps; conversion is handled explicitly in code

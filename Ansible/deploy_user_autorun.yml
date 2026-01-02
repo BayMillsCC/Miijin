@@ -1,0 +1,124 @@
+---
+- name: Configure console (TTY) autologin and launch MiijinLunch AppImage on AlmaLinux
+  hosts: all
+  become: true
+
+  vars:
+    miijin_user: miijin
+    miijin_comment: "Miijin Lunch Console User"
+    miijin_shell: /bin/bash
+    appimage_path: /bin/MiijinLunch-1.1-aarch64.AppImage
+
+    # Which TTY to autologin on:
+    autologin_tty: tty1
+
+    # If true, relaunch the AppImage whenever it exits (kiosk-like)
+    relaunch_on_exit: true
+
+  tasks:
+    - name: Create Miijin user
+      ansible.builtin.user:
+        name: "{{ miijin_user }}"
+        comment: "{{ miijin_comment }}"
+        shell: "{{ miijin_shell }}"
+        create_home: true
+        state: present
+
+    - name: Ensure AppImage exists and is executable
+      ansible.builtin.file:
+        path: "{{ appimage_path }}"
+        owner: root
+        group: root
+        mode: "0755"
+        state: file
+
+    - name: Install launcher script
+      ansible.builtin.copy:
+        dest: /usr/local/bin/miijinlunch-launch
+        owner: root
+        group: root
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          APP="{{ appimage_path }}"
+
+          if [[ ! -x "$APP" ]]; then
+            echo "ERROR: $APP not found or not executable" >&2
+            exit 1
+          fi
+
+          echo "Starting MiijinLunch: $APP"
+          echo "Press Ctrl+C to stop (if allowed) or switch TTY with Alt+F2, etc."
+
+          {% if relaunch_on_exit %}
+          # Relaunch loop (kiosk-like)
+          while true; do
+            "$APP" || true
+            echo "MiijinLunch exited with code $?. Restarting in 2s..." >&2
+            sleep 2
+          done
+          {% else %}
+          exec "$APP"
+          {% endif %}
+
+    - name: Ensure Miijin user auto-runs launcher on tty login via .bash_profile
+      ansible.builtin.copy:
+        dest: "/home/{{ miijin_user }}/.bash_profile"
+        owner: "{{ miijin_user }}"
+        group: "{{ miijin_user }}"
+        mode: "0644"
+        content: |
+          # ~/.bash_profile - Miijin console autostart
+          # Only run on the configured autologin TTY and only for interactive shells.
+
+          if [[ -t 0 ]]; then
+            TTY_NOW="$(tty 2>/dev/null || true)"
+            if [[ "$TTY_NOW" == "/dev/{{ autologin_tty }}" ]]; then
+              # Prevent recursive re-entry
+              if [[ -z "${MIIJIN_STARTED:-}" ]]; then
+                export MIIJIN_STARTED=1
+                exec /usr/local/bin/miijinlunch-launch
+              fi
+            fi
+          fi
+
+          # Fall back to normal profile behavior if not on the kiosk TTY
+          if [[ -f ~/.bashrc ]]; then
+            . ~/.bashrc
+          fi
+
+    # ---- systemd getty autologin ----
+    - name: Create systemd override directory for getty@tty1
+      ansible.builtin.file:
+        path: "/etc/systemd/system/getty@{{ autologin_tty }}.service.d"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Configure getty autologin override
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/getty@{{ autologin_tty }}.service.d/override.conf"
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Service]
+          ExecStart=
+          ExecStart=-/sbin/agetty --autologin {{ miijin_user }} --noclear %I $TERM
+
+      notify:
+        - Reload systemd
+        - Restart getty
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart getty
+      ansible.builtin.systemd:
+        name: "getty@{{ autologin_tty }}"
+        state: restarted
