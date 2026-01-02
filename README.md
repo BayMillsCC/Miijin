@@ -18,11 +18,11 @@ Edit the following file:
 src/Miijin/MiijinDatabase/MiijinDBInitialization.sql
 ```
 
-Update the password variable, and run that code on your Postgres server. Please note you may need to also allow remote connections and configure SSL for your database connections.
+Update the password variable, and run that code on your PostgreSQL server. You may also need to allow remote connections and configure SSL for database access on your Postgres server.
 
 ---
 
-## Setup Instructions
+## Setup Instructions (Manual / Developer Builds)
 
 ### Clone the repository
 
@@ -33,7 +33,7 @@ cd Miijin
 
 ---
 
-###  Create and activate a virtual environment
+### Create and activate a virtual environment
 
 #### macOS / Linux
 
@@ -75,25 +75,34 @@ pip install -r requirements.txt
    ```
 4. Navigate to the `dist` directory and install the generated MSI files
 
-Windows requires **Visual C++ Build Tools v14 or newer** and the **Windows SDK**
+**Requirements**
+- Visual C++ Build Tools v14 or newer
+- Windows SDK
 
-Download here:  
+Download:  
 https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 ---
-### Linux
-To keep this short and maintain compatibility we will deploy AppImages. You may need to install a ```fuse``` package depending on what your distribution comes with.
+
+### Linux (Manual Build)
+
+To keep builds portable across distributions, Miijin is deployed as an **AppImage**.
+
+You may need to install a `fuse` package depending on your distribution.
+
 1. Configure `postgres_config.py` with your database settings
-2. Install dependencies, mainly python3 and python3-tkinter as well as the requirements.txt file
+2. Install dependencies (python3, python3-tkinter, and `requirements.txt`)
 3. Build MiijinLunch:
-   ```bash 
-      python setup_lunch.py bdist_appimage
+   ```bash
+   python setup_lunch.py bdist_appimage
    ```
 4. Build MiijinReport:
-   ```bash 
-      python setup_report.py bdist_appimage
+   ```bash
+   python setup_report.py bdist_appimage
    ```
-   
+
+---
+
 ### macOS
 
 1. Configure `postgres_config.py` with your database settings
@@ -109,23 +118,98 @@ To keep this short and maintain compatibility we will deploy AppImages. You may 
 
 ---
 
+## Automated Deployment (AlmaLinux + Ansible)
+
+This deployment method is intended for **headless systems**, kiosks, and managed environments. It builds MiijinLunch as an AppImage and configures the system for automatic login and application startup.
+
+---
+
+### Prerequisites
+
+- AlmaLinux ISO (matching target architecture)
+- SSH key pair on the host (control) machine (ssh-keygen)
+- Ansible installed on the host machine (on Windows setup WSL and install Ansible in there)
+- Network connectivity to the target system
+- PostgreSQL credentials
+
+---
+
+### Deployment Steps
+
+1. Burn an AlmaLinux ISO.
+
+2. Boot and install AlmaLinux.
+   - Do **not** install a GUI
+   - Select a **Minimal / Server** environment
+   - Ensure networking is enabled
+
+3. Copy your SSH key to the system after installation.
+   - You may need to log in locally to determine the IP address:
+     ```bash
+     ip addr
+     ```
+   - From the host machine:
+     ```bash
+     ssh-copy-id user@<IP_ADDRESS>
+     ```
+
+4. Enable passwordless sudo for the wheel group:
+   ```bash
+   sudo visudo
+   ```
+   Comment out:
+   ```
+   %wheel ALL=(ALL) ALL
+   ```
+   Uncomment:
+   ```
+   %wheel ALL=(ALL) NOPASSWD: ALL
+   ```
+
+5. On the **host machine**, edit the PostgreSQL configuration file:
+   ```
+   Ansible/files/postgres_config.py
+   ```
+   Populate it with the correct credentials.  
+   A template is available in the `MiijinDatabase` directory.
+
+6. Build the Miijin Lunch AppImage:
+   ```bash
+   ansible-playbook -i inventory build_miijin_lunch_appimage.yml
+   ```
+
+7. Configure automatic login and application autorun:
+   ```bash
+   ansible-playbook -i inventory deploy_user_autorun.yml
+   ```
+
+8. Reboot the target system:
+   ```bash
+   sudo reboot
+   ```
+
+After reboot, the system should automatically log in and launch **MiijinLunch**.
+
+---
+
 ## Signing the Windows MSI
 
 If Windows Defender or SmartScreen blocks the MSI, you can sign it using a self-signed certificate.
 
 ### Notes
-- Two PowerShell scripts are provided:
+
+- PowerShell scripts provided:
   - `miijin_cert_generator.ps1`
   - `miijin_msi_signer.ps1`
 - MSI files must be moved to `C:\Temp`
-- File names **must not contain spaces**
+- File names must **not contain spaces**
 
 ### Steps
 
 1. Install OpenSSL  
    https://slproweb.com/products/Win32OpenSSL.html
 
-2. Run the certificate generator:
+2. Generate the certificate:
    ```powershell
    .\miijin_cert_generator.ps1
    ```
@@ -141,19 +225,8 @@ If Windows Defender or SmartScreen blocks the MSI, you can sign it using a self-
 
 ---
 
-### Trusting the Certificate (Optional)
-
-1. Open the MSI Properties → Digital Signatures
-2. Click **View Certificate**
-3. Click **Install Certificate**
-4. Choose **Local Machine**
-5. Place it in **Trusted Root Certification Authorities**
-6. Complete the wizard
-
----
-
 ## Notes
 
-- PostgreSQL stores timestamps in UTC internally
+- PostgreSQL stores timestamps internally in UTC
 - Reports are converted to **America/Detroit** time when exported to Excel
-- Advanced Analytics can be generated with PowerBI or another BI tool
+- Advanced analytics can be generated with PowerBI or another BI tool
