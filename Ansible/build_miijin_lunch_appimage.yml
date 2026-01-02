@@ -34,6 +34,11 @@
     venv_pip: "{{ venv_path }}/bin/pip"
 
   tasks:
+    - name: Enable EPEL (Needed for Patch ELF)
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+
     - name: Install system dependencies (Alma/RHEL)
       ansible.builtin.dnf:
         name:
@@ -46,19 +51,8 @@
           - python3-devel
           - libffi-devel
           - openssl-devel
+          - patchelf
         state: present
-
-    - name: Enable EPEL (ARM only)
-      ansible.builtin.dnf:
-        name: epel-release
-        state: present
-      when: ansible_architecture in ['aarch64', 'arm64']
-
-    - name: Install patchelf (ARM only)
-      ansible.builtin.dnf:
-        name: patchelf
-        state: present
-      when: ansible_architecture in ['aarch64', 'arm64']
 
     - name: Remove existing Miijin workspace (controlled rebuild)
       ansible.builtin.file:
@@ -126,3 +120,6 @@
     - name: Show installed AppImage path
       ansible.builtin.debug:
         msg: "Installed: {{ appimage_install_path }} (arch={{ ansible_architecture }})"
+
+    - name: Force a Reboot to ensure updated binary is launched if this is re-ran.
+      ansible.builtin.reboot:
