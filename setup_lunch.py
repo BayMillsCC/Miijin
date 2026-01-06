@@ -1,7 +1,7 @@
 import sys
 from cx_Freeze import setup, Executable
 
-base = "Win32GUI" if sys.platform == "win32" else None
+base = "GUI" if sys.platform == "win32" else None
 exe_icon = "icons/MiijinLunchWindows.ico" if sys.platform == "win32" else None
 
 executables = [
